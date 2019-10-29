@@ -14,8 +14,8 @@
 
 ; MUI Settings
 !define MUI_ABORTWARNING
-!define MUI_ICON "ImageResources\LogoImageResources\IntuSoft.ico"
-!define MUI_UNICON "ImageResources\LogoImageResources\IntuSoft.ico"
+!define MUI_ICON "C:\Program Files (x86)\HMSoft\NIS Edit\IntuSoft.ico"
+!define MUI_UNICON "C:\Program Files (x86)\HMSoft\NIS Edit\IntuSoft.ico"
 
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
@@ -44,8 +44,8 @@ Section "MainSection" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   
-  File "IntusoftPreInstallerSetup.exe"
-  ExecWait "IntusoftPreInstallerSetup.exe"
+  File "PreInstallerSetup.exe"
+  ExecWait "PreInstallerSetup.exe"
   
   File "IntuSoftSetup.exe"
   ExecWait "IntuSoftSetup.exe"
