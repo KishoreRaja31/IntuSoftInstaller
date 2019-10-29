@@ -1,1 +1,6 @@
 /Release/
+
+/PreInstaller/
+/IntuSoftInstallerScripts/PreInstallerSetup.exe
+/IntuSoftInstallerScripts/IntuSoftCompleteInstallerSetup.exe
+/IntuSoftInstallerScripts/IntuSoftSetup.exe
