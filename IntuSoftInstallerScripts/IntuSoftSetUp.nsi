@@ -2,13 +2,15 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "IntuSoft"
-!define PRODUCT_VERSION "4.1.0"
+!define PRODUCT_VERSION "4.3.0_alpha3"
 !define PRODUCT_PUBLISHER "Sigtuple Technologies Pvt Ltd"
-!define PRODUCT_WEB_SITE "http://www.sigtuple.com"
+!define PRODUCT_WEB_SITE "https//www.sigtuple.com"
 !define PRODUCT_MRN_KEY "Software\Intusoft"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\IntuSoft.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
+!define INSTALL_PATH "$PROGRAMFILES64\Intuvision Labs Pvt Ltd\IntuSoft ${PRODUCT_VERSION}"
+!define APP_DIR_PATH "Intuvision Labs Pvt Ltd"
 
 ; MUI 1.67 compatible ------
 !include "MUI.nsh"
@@ -23,7 +25,7 @@
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_FINISHPAGE_RUN "$INSTDIR\IntuSoft.exe"
+!define MUI_FINISHPAGE_RUN "${INSTALL_PATH}\IntuSoft.exe"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -36,41 +38,67 @@
 
 Name "${PRODUCT_NAME}"
 OutFile "IntuSoftSetup.exe"
-InstallDir "$PROGRAMFILES64\IntuSoft"
+InstallDir "${INSTALL_PATH}"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
 
-Section "MainSection" SEC01
-  SetOutPath "$INSTDIR"
-  SetOverwrite ifnewer
-  File /r "bin\Release\*"
-  CreateDirectory "$SMPROGRAMS\IntuSoft"
-  
-  CreateShortCut "$DESKTOP\IntuSoft.lnk" "$INSTDIR\IntuSoft.exe"
-SectionEnd
+Function .onInit
+  SetRegView 64
+ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString"
 
-Section -AdditionalIcons
-  WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
+${If} $0 != ""
+${AndIf} ${Cmd} `MessageBox MB_YESNO|MB_ICONQUESTION "Uninstall previous version?" /SD IDYES IDYES`
+	 ExecWait $0
+	 BringToFront
+	 Sleep 20000
+	${If} $0 <> 0
+		MessageBox MB_YESNO|MB_ICONSTOP "Failed to uninstall, continue anyway?" /SD IDYES IDYES +2
+			Abort
+	${EndIf}
+${EndIf}
+FunctionEnd
+
+Section "MainSection" SEC01
+  SetOutPath "${INSTALL_PATH}"
+  SetOverwrite ifnewer
+  File /r "D:\Projects\IntuSoftInstaller\Release\*"
+  CreateDirectory "$SMPROGRAMS\IntuSoft"
+  ;CreateDirectory "$APPDATA\Intuvision Labs Pvt Ltd\ReportTemplates"
+  CreateShortCut "$SMPROGRAMS\IntuSoft\IntuSoft.lnk" "${INSTALL_PATH}\IntuSoft.exe"
+  CreateShortCut "$DESKTOP\IntuSoft.lnk" "${INSTALL_PATH}\IntuSoft.exe"
   
-  CreateShortCut "$SMPROGRAMS\IntuSoft\Uninstall.lnk" "$INSTDIR\uninst.exe"
+  
 SectionEnd
 
 Section -Post
-SetRegView 64
-  WriteUninstaller "$INSTDIR\uninst.exe"
+  SetRegView 64
+  WriteUninstaller "${INSTALL_PATH}\uninst.exe"
   ReadRegStr $0 HKLM "${PRODUCT_MRN_KEY}" "MRN"
 ${If} $0 == ""
   writeRegStr HKLM "${PRODUCT_MRN_KEY}" "MRN" "0"
 ${Endif}
-  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\IntuSoft.exe"
+  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "${INSTALL_PATH}\IntuSoft.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\IntuSoft.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+  call Copy2AppData
+  ;IfFileExists "$APPDATA\Intuvision Labs Pvt Ltd\ReportTemplates\*.*" +2
+      ;Copyfiles "Intusoft_QI_Integration_Alpha5\ReportTemplates\*.*" "$APPDATA\Intuvision Labs Pvt Ltd\ReportTemplates\"
+      
 SectionEnd
+
+Function Copy2AppData
+
+         CreateDirectory "$APPDATA\Intuvision Labs Pvt Ltd\ReportTemplates"
+         CreateDirectory "$APPDATA\Intuvision Labs Pvt Ltd\ImageResources"
+         ExpandEnvStrings $0 %COMSPEC%
+
+         ExecWait '"CMD" "/C" "CopyAppData.exe" "${INSTALL_PATH}" "$APPDATA\${APP_DIR_PATH}" '
+FunctionEnd
 
 
 Function un.onUninstSuccess
@@ -84,18 +112,20 @@ Function un.onInit
 FunctionEnd
 
 Section Uninstall
-  Delete "$INSTDIR\${PRODUCT_NAME}.url"
-  Delete "$INSTDIR\uninst.exe"
-  Delete "$INSTDIR\IntuSoft.exe"
-  Delete "$SMPROGRAMS\IntuSoft\Uninstall.lnk"
-  Delete "$SMPROGRAMS\IntuSoft\Website.lnk"
-  Delete "$DESKTOP\IntuSoft.lnk"
-  Delete "$SMPROGRAMS\IntuSoft\IntuSoft.lnk"
 
-  RMDir "$SMPROGRAMS\IntuSoft"
-  RMDir /r "$INSTDIR\*"
+ SetRegView 64
+  DeleteRegValue ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString"
+    CreateDirectory "${INSTALL_PATH}_Backup"
+   CopyFiles "${INSTALL_PATH}\*" "${INSTALL_PATH}_Backup\"
+  Delete "${INSTALL_PATH}\uninstall.exe"
+     Delete "$DESKTOP\Installer.lnk"
+  Delete "$SMPROGRAMS\IntuSoftInstaller\Installer.lnk"
+   Delete "$PROGRAMFILES64\IntuSoft ${PRODUCT_VERSION}\*"
+  delete "${INSTALL_PATH}\*.exe"
 
-  DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
-  DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
+
+  RMDir /r "$SMPROGRAMS\${PRODUCT_NAME}${PRODUCT_VERSION}\*"
+  RMDir /r "${INSTALL_PATH}\*"
+
   SetAutoClose true
 SectionEnd
