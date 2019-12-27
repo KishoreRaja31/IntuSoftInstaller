@@ -51,7 +51,7 @@ ${If} $0 != ""
 ${AndIf} ${Cmd} `MessageBox MB_YESNO|MB_ICONQUESTION "Uninstall previous version?" /SD IDYES IDYES`
 	 ExecWait $0
 	 BringToFront
-	 Sleep 25000
+	 Sleep 30000
 	${If} $0 <> 0
 		MessageBox MB_YESNO|MB_ICONSTOP "Failed to uninstall, continue anyway?" /SD IDYES IDYES +2
 			Abort
