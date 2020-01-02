@@ -78,6 +78,7 @@ Section -Post
 ${If} $0 == ""
   writeRegStr HKLM "${PRODUCT_MRN_KEY}" "MRN" "0"
 ${Endif}
+  WriteRegStr HKLM "${PRODUCT_MRN_KEY}" "AppDataPath" "$APPDATA\${APP_DIR_PATH}"
   WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "${INSTALL_PATH}\IntuSoft.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
