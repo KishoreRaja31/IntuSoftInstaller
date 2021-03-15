@@ -2,9 +2,9 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "IntuSoft"
-!define PRODUCT_VERSION "4.3.0"
-!define PRODUCT_PUBLISHER "Sigtuple Technologies Pvt Ltd"
-!define PRODUCT_WEB_SITE "https//www.sigtuple.com"
+!define PRODUCT_VERSION "4.2.0"
+!define PRODUCT_PUBLISHER "Intuvision Labs Pvt Ltd"
+!define PRODUCT_WEB_SITE "https//www.intuvisionlabs.com"
 !define PRODUCT_MRN_KEY "Software\Intusoft"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\IntuSoft.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -51,7 +51,7 @@ ${If} $0 != ""
 ${AndIf} ${Cmd} `MessageBox MB_YESNO|MB_ICONQUESTION "Uninstall previous version?" /SD IDYES IDYES`
 	 ExecWait $0
 	 BringToFront
-	 Sleep 30000
+	 Sleep 15000
 	${If} $0 <> 0
 		MessageBox MB_YESNO|MB_ICONSTOP "Failed to uninstall, continue anyway?" /SD IDYES IDYES +2
 			Abort
